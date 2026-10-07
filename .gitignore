@@ -218,3 +218,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+data/raw/*.pdf
+
+data/raw/dga_25_transformers_source.pdf
