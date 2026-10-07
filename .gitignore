@@ -222,3 +222,4 @@ __marimo__/
 data/raw/*.pdf
 
 data/raw/dga_25_transformers_source.pdf
+data/raw/*.xlsx
