@@ -12,7 +12,11 @@ from sklearn.metrics import (
     classification_report,
     f1_score,
 )
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import (
+    StratifiedKFold,
+    cross_validate,
+    train_test_split,
+)
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import (
@@ -150,7 +154,52 @@ def main():
             random_state=RANDOM_STATE,
         ),
     }
+    print("\n" + "=" * 65)
+    print("5-FOLD STRATIFIED CROSS-VALIDATION — TRAINING SET ONLY")
+    print("=" * 65)
 
+    cv = StratifiedKFold(
+        n_splits=5,
+        shuffle=True,
+        random_state=RANDOM_STATE,
+    )
+
+    scoring = {
+        "accuracy": "accuracy",
+        "balanced_accuracy": "balanced_accuracy",
+        "macro_f1": "f1_macro",
+    }
+
+    cv_results = []
+
+    for name, model in models.items():
+        scores = cross_validate(
+            model,
+            X_train,
+            y_train,
+            cv=cv,
+            scoring=scoring,
+            n_jobs=1,
+        )
+
+        cv_results.append(
+            {
+                "model": name,
+                "cv_accuracy_mean": scores["test_accuracy"].mean(),
+                "cv_balanced_accuracy_mean":
+                    scores["test_balanced_accuracy"].mean(),
+                "cv_macro_f1_mean": scores["test_macro_f1"].mean(),
+                "cv_macro_f1_std": scores["test_macro_f1"].std(),
+            }
+        )
+
+    cv_df = pd.DataFrame(cv_results).sort_values(
+        "cv_macro_f1_mean",
+        ascending=False,
+    )
+
+    print("\nCross-validation results:")
+    print(cv_df.to_string(index=False))
     results = []
 
     for name, model in models.items():
